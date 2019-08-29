@@ -152,17 +152,17 @@ int main(int argc, const char* argv[])
      * Host API tests.
      */
     g_enclave = enclave;
+
+#ifdef OE_USE_LIBSGX
     test_local_report(&target_info);
     test_remote_report();
     test_parse_report_negative();
     test_local_verify_report();
 
-#ifdef OE_USE_LIBSGX
     test_remote_verify_report();
 
     OE_TEST(test_iso8601_time(enclave) == OE_OK);
     OE_TEST(test_iso8601_time_negative(enclave) == OE_OK);
-#endif
 
     /*
      * Enclave API tests.
@@ -176,7 +176,6 @@ int main(int argc, const char* argv[])
 
     OE_TEST(enclave_test_local_verify_report(enclave) == OE_OK);
 
-#ifdef OE_USE_LIBSGX
     OE_TEST(enclave_test_remote_verify_report(enclave) == OE_OK);
 
     TestVerifyTCBInfo(enclave, "./data/tcbInfo.json");
