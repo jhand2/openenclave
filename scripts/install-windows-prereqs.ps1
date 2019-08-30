@@ -549,6 +549,10 @@ function Install-VCRuntime {
     }
 }
 
+function Install-DockerEngine {
+    Install-Module DockerMsftProvider -Force
+    Install-Package Docker -ProviderName DockerMsftProvider -Force
+}
 
 try {
     Start-LocalPackagesDownload
@@ -566,6 +570,7 @@ try {
         Install-DCAPDrivers
     }
     Install-VCRuntime
+    Install-DockerEngine
 
     Write-Output 'Please reboot your computer for the configuration to complete.'
 } catch {
