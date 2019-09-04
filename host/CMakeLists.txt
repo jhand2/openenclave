@@ -3,6 +3,18 @@
 
 ##==============================================================================
 ##
+## These rules build the oehost target after appended conditional logic
+## based on host environment
+##
+##==============================================================================
+
+set(PLATFORM_HOST_ONLY_SRC PARENT_SCOPE)
+set(PLATFORM_SDK_ONLY_SRC PARENT_SCOPE)
+set(PLATFORM_FLAGS PARENT_SCOPE)
+
+
+##==============================================================================
+##
 ## These rules generate the edge routines for the internal TEE-agnostic
 ## ECALLs/OCALLs used by liboehost/liboecore.
 ##
@@ -64,42 +76,11 @@ add_custom_target(syscall_untrusted_edl
 
 # OS specific but arch agnostic files.
 if (UNIX)
-  set(PLATFORM_HOST_ONLY_SRC
-    ../common/cert.c
-    crypto/openssl/asn1.c
-    crypto/openssl/cert.c
-    crypto/openssl/crl.c
-    crypto/openssl/ec.c
-    crypto/openssl/init.c
-    crypto/openssl/key.c
-    crypto/openssl/rsa.c
-    crypto/openssl/sha.c
-    linux/hostthread.c)
-
-  set(PLATFORM_SDK_ONLY_SRC
-    ../common/asn1.c
-    crypto/openssl/hmac.c
-    crypto/openssl/random.c
-    linux/syscall.c
-    linux/time.c
-    linux/windows.c)
+    add_subdirectory(linux)
+    message("Whyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
+    message(${PLATFORM_HOST_ONLY_SRC})
 elseif (WIN32)
-  set(PLATFORM_SDK_ONLY_SRC
-    ../3rdparty/mbedtls/mbedtls/library/bignum.c
-    ../common/asn1.c
-    ../common/cert.c
-    crypto/bcrypt/cert.c
-    crypto/bcrypt/crl.c
-    crypto/bcrypt/ec.c
-    crypto/bcrypt/hmac.c
-    crypto/bcrypt/key.c
-    crypto/bcrypt/pem.c
-    crypto/bcrypt/random.c
-    crypto/bcrypt/rsa.c
-    crypto/bcrypt/sha.c
-    windows/hostthread.c
-    windows/syscall.c
-    windows/time.c)
+    add_subdirectory(windows)
 else()
   message(FATAL_ERROR "Unknown OS. Only supported OSes are Linux and Windows")
 endif()
@@ -138,6 +119,9 @@ if (OE_SGX)
     sgx/sgxsign.c
     sgx/sgxtypes.c)
 
+    message("okkkkkkkkkkkkkkkkkk")
+    message(${PLATFORM_SDK_ONLY_SRC})
+
   # OS specific as well.
   if (UNIX)
     list(APPEND PLATFORM_HOST_ONLY_SRC
@@ -162,7 +146,7 @@ if (OE_SGX)
       sgx/windows/xstate.c)
   endif()
 
-  set(PLATFORM_FLAGS "-m64")
+  list(APPEND PLATFORM_FLAGS "-m64")
 elseif(OE_TRUSTZONE)
   list(APPEND PLATFORM_SDK_ONLY_SRC
     optee/log.c)
@@ -174,7 +158,7 @@ elseif(OE_TRUSTZONE)
     message(FATAL_ERROR "OP-TEE is not yet supported on platforms other than Linux.")
   endif()
 
-  set(PLATFORM_FLAGS "")
+  list(APPEND PLATFORM_FLAGS "")
 endif()
 
 if (OE_SGX AND WIN32)
