@@ -1,6 +1,12 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
+##==============================================================================
+##
+## these rules build the oehost target.
+##
+##==============================================================================
+
 list(APPEND PLATFORM_SDK_ONLY_SRC
     ../3rdparty/mbedtls/mbedtls/library/bignum.c
     ../common/asn1.c

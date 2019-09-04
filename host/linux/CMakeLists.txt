@@ -1,6 +1,12 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
+##==============================================================================
+##
+## these rules build the oehost target.
+##
+##==============================================================================
+
 list(APPEND PLATFORM_HOST_ONLY_SRC
 ../common/cert.c
 crypto/openssl/asn1.c

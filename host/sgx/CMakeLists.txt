@@ -35,6 +35,14 @@ list(APPEND PLATFORM_SDK_ONLY_SRC
 
 list(APPEND PLATFORM_FLAGS "-m64")
 
+if(UNIX)
+  add_subdirectory(linux)
+elseif(WIN32)
+  add_subdirectory(windows)
+else()
+    message(FATAL_ERROR "Unknown OS. Only supported OSes are Linux and Windows")
+endif()
+
 set(PLATFORM_FLAGS ${PLATFORM_FLAGS} PARENT_SCOPE)
 set(PLATFORM_HOST_ONLY_SRC ${PLATFORM_HOST_ONLY_SRC} PARENT_SCOPE)
 set(PLATFORM_SDK_ONLY_SRC ${PLATFORM_SDK_ONLY_SRC} PARENT_SCOPE)

@@ -12,7 +12,6 @@ set(PLATFORM_HOST_ONLY_SRC PARENT_SCOPE)
 set(PLATFORM_SDK_ONLY_SRC PARENT_SCOPE)
 set(PLATFORM_FLAGS PARENT_SCOPE)
 
-
 ##==============================================================================
 ##
 ## These rules generate the edge routines for the internal TEE-agnostic
@@ -32,25 +31,34 @@ add_custom_command(
 add_custom_target(tee_untrusted_edl
     DEPENDS tee_u.h tee_u.c tee_args.h)
 
+
+
+if(OE_SGX)
 ##==============================================================================
 ##
 ## These rules generate the edge routines for the internal SGX-specific
 ## ECALLs/OCALLs used by liboehost/liboecore.
 ##
 ##==============================================================================
+set(SGX_EDL_FILE ${EDL_DIR}/sgx/sgx.edl)
 
-if(OE_SGX)
-    set(SGX_EDL_FILE ${EDL_DIR}/sgx/sgx.edl)
+add_custom_command(
+    OUTPUT sgx_u.h sgx_u.c sgx_args.h
+    DEPENDS ${SGX_EDL_FILE} edger8r
+    COMMAND edger8r --search-path ${EDL_DIR} --untrusted ${SGX_EDL_FILE})
 
-    add_custom_command(
-        OUTPUT sgx_u.h sgx_u.c sgx_args.h
-        DEPENDS ${SGX_EDL_FILE} edger8r
-        COMMAND edger8r --search-path ${EDL_DIR} --untrusted ${SGX_EDL_FILE})
+add_custom_target(sgx_untrusted_edl
+    DEPENDS sgx_u.h sgx_u.c sgx_args.h)
 
-    add_custom_target(sgx_untrusted_edl
-        DEPENDS sgx_u.h sgx_u.c sgx_args.h)
+add_subdirectory(sgx)
+
+elseif(OE_TRUSTZONE)
+
+add_subdirectory(optee)
+
+elseif(UNIX)
+elseif(WIN32)
 endif()
-
 ##==============================================================================
 ##
 ## These rules generate the edge routines for the SYSCALL interface, which is
@@ -81,25 +89,6 @@ elseif (WIN32)
     add_subdirectory(windows)
 else()
   message(FATAL_ERROR "Unknown OS. Only supported OSes are Linux and Windows")
-endif()
-
-# SGX specific files.
-if (OE_SGX)
-  add_subdirectory(sgx)
-
-  # OS specific as well.
-  if (UNIX)
-    add_subdirectory(sgx/linux)
-  else()
-    add_subdirectory(sgx/windows)
-  endif()
-
-elseif(OE_TRUSTZONE)
-  add_subdirectory(optee)
-endif()
-
-if (OE_SGX AND WIN32)
-  add_subdirectory(sgx/windows)
 endif()
 
 # Common host verification files that work on any OS/architecture.
