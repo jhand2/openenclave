@@ -13,3 +13,6 @@ list(APPEND PLATFORM_SDK_ONLY_SRC
   sgx/windows/exception.c
   sgx/windows/sgxquoteproviderloader.c
   sgx/windows/xstate.c)
+
+set(PLATFORM_HOST_ONLY_SRC ${PLATFORM_HOST_ONLY_SRC} PARENT_SCOPE)
+set(PLATFORM_SDK_ONLY_SRC ${PLATFORM_SDK_ONLY_SRC} PARENT_SCOPE)

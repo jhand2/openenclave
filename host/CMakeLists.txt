@@ -95,21 +95,11 @@ if (OE_SGX)
   endif()
 
 elseif(OE_TRUSTZONE)
-  list(APPEND PLATFORM_SDK_ONLY_SRC
-    optee/log.c)
-  
-  if (UNIX)
-    list(APPEND PLATFORM_SDK_ONLY_SRC
-      optee/linux/enclave.c)
-  else()
-    message(FATAL_ERROR "OP-TEE is not yet supported on platforms other than Linux.")
-  endif()
-
-  list(APPEND PLATFORM_FLAGS "")
+  add_subdirectory(optee)
 endif()
 
 if (OE_SGX AND WIN32)
-
+  add_subdirectory(sgx/windows)
 endif()
 
 # Common host verification files that work on any OS/architecture.
