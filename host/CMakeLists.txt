@@ -77,8 +77,6 @@ add_custom_target(syscall_untrusted_edl
 # OS specific but arch agnostic files.
 if (UNIX)
     add_subdirectory(linux)
-    message("Whyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
-    message(${PLATFORM_HOST_ONLY_SRC})
 elseif (WIN32)
     add_subdirectory(windows)
 else()
@@ -87,66 +85,15 @@ endif()
 
 # SGX specific files.
 if (OE_SGX)
-  list(APPEND PLATFORM_HOST_ONLY_SRC
-    ../common/sgx/qeidentity.c
-    ../common/sgx/quote.c
-    ../common/sgx/report.c
-    ../common/sgx/revocation.c
-    ../common/sgx/sgxcertextensions.c
-    ../common/sgx/tcbinfo.c
-    ../common/sgx/tlsverifier.c
-    sgx/hostverify_report.c
-    sgx/sgxquoteprovider.c)
-
-  list(APPEND PLATFORM_SDK_ONLY_SRC
-    sgx/calls.c
-    sgx/create.c
-    sgx/elf.c
-    sgx/enclave.c
-    sgx/enclavemanager.c
-    sgx/exception.c
-    sgx/sgx_u_wrapper.c
-    sgx/load.c
-    sgx/loadelf.c
-    sgx/loadpe.c
-    sgx/ocalls.c
-    sgx/quote.c
-    sgx/registers.c
-    sgx/report.c
-    sgx/sgxload.c
-    sgx/sgxmeasure.c
-    sgx/sgxquote.c
-    sgx/sgxsign.c
-    sgx/sgxtypes.c)
-
-    message("okkkkkkkkkkkkkkkkkk")
-    message(${PLATFORM_SDK_ONLY_SRC})
+  add_subdirectory(sgx)
 
   # OS specific as well.
   if (UNIX)
-    list(APPEND PLATFORM_HOST_ONLY_SRC
-        sgx/linux/sgxquoteproviderloader.c)
-
-    list(APPEND PLATFORM_SDK_ONLY_SRC
-      sgx/linux/aep.S
-      sgx/linux/aesm.c
-      sgx/linux/enter.S
-      sgx/linux/entersim.S
-      sgx/linux/exception.c
-      sgx/linux/sgxioctl.c
-      sgx/linux/xstate.c)
+    add_subdirectory(sgx/linux)
   else()
-    list(APPEND PLATFORM_SDK_ONLY_SRC
-      sgx/windows/aep.asm
-      sgx/windows/aesm.c
-      sgx/windows/enter.asm
-      sgx/windows/entersim.asm
-      sgx/windows/exception.c
-      sgx/windows/sgxquoteproviderloader.c
-      sgx/windows/xstate.c)
+    add_subdirectory(sgx/windows)
   endif()
 
-  list(APPEND PLATFORM_FLAGS "-m64")
 elseif(OE_TRUSTZONE)
   list(APPEND PLATFORM_SDK_ONLY_SRC
     optee/log.c)
@@ -162,9 +109,7 @@ elseif(OE_TRUSTZONE)
 endif()
 
 if (OE_SGX AND WIN32)
-  # oedebugrt is accessed via a bridge on Win32 and need not be linked.    
-  list(APPEND PLATFORM_SDK_ONLY_SRC
-    sgx/windows/debugrtbridge.c)
+
 endif()
 
 # Common host verification files that work on any OS/architecture.

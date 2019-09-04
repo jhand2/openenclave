@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-list(APPEND SDK_ONLY_SRC
+list(APPEND PLATFORM_SDK_ONLY_SRC
     ../3rdparty/mbedtls/mbedtls/library/bignum.c
     ../common/asn1.c
     ../common/cert.c
@@ -18,4 +18,4 @@ list(APPEND SDK_ONLY_SRC
     windows/syscall.c
     windows/time.c)
 
-set(PLATFORM_SDK_ONLY_SRC ${SDK_ONLY_SRC} PARENT_SCOPE)
+set(PLATFORM_SDK_ONLY_SRC ${PLATFORM_SDK_ONLY_SRC} PARENT_SCOPE)
