@@ -487,6 +487,7 @@ int __oe_dispatch_ocall(
     const uint16_t func = oe_get_func_from_call_arg1(arg1);
     const uint64_t arg = arg2;
     sgx_tcs_t* tcs = (sgx_tcs_t*)tcs_;
+    void* saved_fsbase = NULL;
 
     if (code == OE_CODE_OCALL)
     {
@@ -513,7 +514,17 @@ int __oe_dispatch_ocall(
                     break;
                 }
             }
+            /**In SGX-LKL-OE, new memory is allocated for TLS,
+             * and the fsbase is updated accordingly in
+             * simulation mode. During ocalls, this new fsbase
+             * must be retained, otherwise the lthread scheduler
+             * encounters an improper thread context and causes
+             * a segmentation fault. Hence, the fsbase address
+             * is saved before handling an ocall and restored
+             * when returning to the enclave.
+             */
 
+            saved_fsbase = oe_get_fs_register_base();
             /**
              * Restore FS and GS registers when making an OCALL.
              * This makes sure that thread-locals, libc on host work.
@@ -538,7 +549,7 @@ int __oe_dispatch_ocall(
         {
             // Prior to returning back to the enclave, set the GS and FS
             // registers to their values for the enclave thread.
-            oe_set_fs_register_base((void*)(enclave->addr + tcs->fsbase));
+            oe_set_fs_register_base(saved_fsbase);
             oe_set_gs_register_base((void*)(enclave->addr + tcs->gsbase));
         }
         return 0;
