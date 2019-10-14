@@ -10,6 +10,7 @@
 #include <openenclave/internal/fault.h>
 #include <openenclave/internal/globals.h>
 #include <openenclave/internal/jump.h>
+#include <openenclave/internal/print.h>
 #include <openenclave/internal/sgxtypes.h>
 #include <openenclave/internal/thread.h>
 #include <openenclave/internal/trace.h>
@@ -296,6 +297,29 @@ void oe_real_exception_dispatcher(oe_context_t* oe_context)
     return;
 }
 
+typedef struct _cpui_state
+{
+    sgx_ssa_gpr_t* ssa_gpr_ptr;
+    sgx_ssa_gpr_t ssa_gpr_copy;
+} cpui_state_t;
+
+static __thread cpui_state_t _cpuid_state;
+
+#if 0
+void __handle_failed_cpuid_instruction(void* context)
+{
+    extern void oe_exception_dispatcher(void* context);
+
+    __attribute__((aligned(64))) uint64_t dummy;
+    OE_UNUSED(dummy);
+
+
+//oe_host_printf("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\n");
+
+    oe_exception_dispatcher(context);
+}
+#endif
+
 /*
 **==============================================================================
 **
@@ -373,15 +397,34 @@ void oe_virtual_exception_dispatcher(
         }
     }
 
-    if (td->base.exception_code == OE_EXCEPTION_ILLEGAL_INSTRUCTION &&
-        _emulate_illegal_instruction(ssa_gpr) == 0)
+    /*
+    ATTN:MEB: call back into host if _emulate_illegal_instruction() failed.
+    */
+    if (td->base.exception_code == OE_EXCEPTION_ILLEGAL_INSTRUCTION)
     {
-        // Restore the RBP & RSP as required by return from EENTER
-        td->host_rbp = td->host_previous_rbp;
-        td->host_rsp = td->host_previous_rsp;
+        if (_emulate_illegal_instruction(ssa_gpr) == 0)
+        {
+            // Restore the RBP & RSP as required by return from EENTER
+            td->host_rbp = td->host_previous_rbp;
+            td->host_rsp = td->host_previous_rsp;
 
-        // Advance RIP to the next instruction for continuation
-        ssa_gpr->rip += 2;
+            // Advance RIP to the next instruction for continuation
+            ssa_gpr->rip += 2;
+        }
+        else if (*((uint16_t*)ssa_gpr->rip) == OE_CPUID_OPCODE)
+        {
+            /* Failed to emulate CPUID instruction. */
+
+            _cpuid_state.ssa_gpr_ptr = ssa_gpr;
+            _cpuid_state.ssa_gpr_copy = *ssa_gpr;
+
+            // ssa_gpr->rip = (uint64_t)__handle_failed_cpuid_instruction;
+            ssa_gpr->rip = (uint64_t)oe_exception_dispatcher;
+        }
+        else
+        {
+            ssa_gpr->rip = (uint64_t)oe_exception_dispatcher;
+        }
     }
     else
     {
@@ -433,4 +476,22 @@ void oe_cleanup_xstates(void)
     __builtin_ia32_xrstor64(xsave_area, restore_mask);
 
     return;
+}
+
+long (*oe_continue_execution_hook)(long ret);
+
+long oe_call_continue_execution_hook(long ret)
+{
+    /* ATTN: force compiler not to remove this with optimization. */
+    /* Force 64-byte stack alignment. */
+    __attribute__((aligned(64))) uint64_t dummy;
+
+    OE_UNUSED(dummy);
+
+    if (oe_continue_execution_hook)
+        return oe_continue_execution_hook(ret);
+
+    oe_host_printf("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n");
+
+    return ret;
 }

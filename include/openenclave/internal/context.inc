@@ -11,7 +11,7 @@
 //
 // This function captures the context of the caller. All register values except
 // the rip are exactly same as the values before this function call instruction
-// is executed. The rip in the output context is set to the return address of 
+// is executed. The rip in the output context is set to the return address of
 // this function.
 //
 // Arguments:
@@ -25,6 +25,7 @@
 .type oe_snap_current_context, @function
 oe_snap_current_context:
 .cfi_startproc
+
     // Save the flags to stack.
     pushfq
 
@@ -76,6 +77,7 @@ oe_snap_current_context:
 
     // Return
     retq
+
 .cfi_endproc
 
 //==============================================================================
@@ -176,6 +178,9 @@ oe_restore_partial_context:
 .type oe_continue_execution, @function
 oe_continue_execution:
 .cfi_startproc
+
+restore_registers:
+
     restore_common_registers
 
     // Restore rbp, rsp
@@ -192,14 +197,88 @@ oe_continue_execution:
     pushq   OE_CONTEXT_FLAGS(%rdi)
 
     // Restore rdi.
-    movq    OE_CONTEXT_RDI(%rdi), %rdi
+    movq OE_CONTEXT_RDI(%rdi), %rdi
 
     // Restore flags.
     popfq
 
-    // Recovery the correct rsp.
+    //jmp return_to_exception_site
+
+call_handler:
+
+    // ATTN: what about X87 and SSE values?
+    // ATTN: what about SEE control flags?
+
+    pushfq
+    pushq %rbp
+    pushq %rsp
+    pushq %rbx
+    pushq %rcx
+    pushq %rdx
+    pushq %rsi
+    pushq %rdi
+    pushq %r8
+    pushq %r9
+    pushq %r10
+    pushq %r11
+    pushq %r12
+    pushq %r13
+    pushq %r14
+    pushq %r15
+
+    subq $16, %rsp
+    stmxcsr (%rsp)
+
+    subq $512 + 16, %rsp
+    pushq %rdx
+    movq %rsp, %rdx
+    addq $15, %rdx
+    andq $0xFFFFFFFFFFFFFFF0, %rdx
+    fxsave (%rdx)
+    popq %rdx
+
+    /* Note: the function is responisble for aligning the stack. */
+    /* %rax = oe_call_continue_execution_hook(%rdi) */
+    movq %rax, %rdi
+    call oe_call_continue_execution_hook
+
+    pushq %rdx
+    movq %rsp, %rdx
+    addq $15, %rdx
+    andq $0xFFFFFFFFFFFFFFF0, %rdx
+    fxrstor (%rdx)
+    popq %rdx
+    addq $512 + 16, %rsp
+
+    ldmxcsr (%rsp)
+    addq $16, %rsp
+
+    popq %r15
+    popq %r14
+    popq %r13
+    popq %r12
+    popq %r11
+    popq %r10
+    popq %r9
+    popq %r8
+    popq %rdi
+    popq %rsi
+    popq %rdx
+    popq %rcx
+    popq %rbx
+    popq %rsp
+    popq %rbp
+    popfq
+
+return_to_exception_site:
+
+    // Recover the correct rsp.
     add     $(ABI_REDZONE_BYTE_SIZE + 8), %rsp
 
     // Jump to the target.
     jmp     *-(ABI_REDZONE_BYTE_SIZE + 8)(%rsp)
+
+crash:
+    ud2
+
 .cfi_endproc

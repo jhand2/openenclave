@@ -78,3 +78,10 @@ uint64_t oe_host_handle_exception(oe_host_exception_context_t* context)
         return OE_EXCEPTION_CONTINUE_SEARCH;
     }
 }
+
+long oe_call_continue_execution_hook(long ret);
+
+long oe_call_continue_execution_hook(long ret)
+{
+    return ret;
+}
