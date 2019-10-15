@@ -78,10 +78,10 @@ void test_cpuid(void)
     /* Install the exception continuation hook. */
     oe_continue_execution_hook = _continue_execution_hook;
 
-    /* Execute the CPUID instruction to get leaf count. */
+    /* Execute the CPUID instruction. */
     {
         const uint32_t leaf = 4;
-        const uint32_t subleaf = 1;
+        const uint32_t subleaf = 1; /* unsupported by default in OE. */
         uint32_t eax = 0;
         uint32_t ebx = 0;
         uint32_t ecx = 0;
