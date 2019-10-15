@@ -10,7 +10,6 @@
 #include <openenclave/internal/fault.h>
 #include <openenclave/internal/globals.h>
 #include <openenclave/internal/jump.h>
-#include <openenclave/internal/print.h>
 #include <openenclave/internal/sgxtypes.h>
 #include <openenclave/internal/thread.h>
 #include <openenclave/internal/trace.h>
@@ -298,34 +297,10 @@ void oe_real_exception_dispatcher(oe_context_t* oe_context)
     td->host_rbp = td->host_previous_rbp;
     td->host_rsp = td->host_previous_rsp;
     oe_exception_record.context->rip = (uint64_t)oe_abort;
-
     oe_continue_execution(oe_exception_record.context);
 
     return;
 }
-
-typedef struct _cpui_state
-{
-    sgx_ssa_gpr_t* ssa_gpr_ptr;
-    sgx_ssa_gpr_t ssa_gpr_copy;
-} cpui_state_t;
-
-static __thread cpui_state_t _cpuid_state;
-
-#if 0
-void __handle_failed_cpuid_instruction(void* context)
-{
-    extern void oe_exception_dispatcher(void* context);
-
-    __attribute__((aligned(64))) uint64_t dummy;
-    OE_UNUSED(dummy);
-
-
-//oe_host_printf("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\n");
-
-    oe_exception_dispatcher(context);
-}
-#endif
 
 /*
 **==============================================================================
@@ -404,34 +379,15 @@ void oe_virtual_exception_dispatcher(
         }
     }
 
-    /*
-    ATTN:MEB: call back into host if _emulate_illegal_instruction() failed.
-    */
-    if (td->base.exception_code == OE_EXCEPTION_ILLEGAL_INSTRUCTION)
+    if (td->base.exception_code == OE_EXCEPTION_ILLEGAL_INSTRUCTION &&
+        _emulate_illegal_instruction(ssa_gpr) == 0)
     {
-        if (_emulate_illegal_instruction(ssa_gpr) == 0)
-        {
-            // Restore the RBP & RSP as required by return from EENTER
-            td->host_rbp = td->host_previous_rbp;
-            td->host_rsp = td->host_previous_rsp;
+        // Restore the RBP & RSP as required by return from EENTER
+        td->host_rbp = td->host_previous_rbp;
+        td->host_rsp = td->host_previous_rsp;
 
-            // Advance RIP to the next instruction for continuation
-            ssa_gpr->rip += 2;
-        }
-        else if (*((uint16_t*)ssa_gpr->rip) == OE_CPUID_OPCODE)
-        {
-            /* Failed to emulate CPUID instruction. */
-
-            _cpuid_state.ssa_gpr_ptr = ssa_gpr;
-            _cpuid_state.ssa_gpr_copy = *ssa_gpr;
-
-            // ssa_gpr->rip = (uint64_t)__handle_failed_cpuid_instruction;
-            ssa_gpr->rip = (uint64_t)oe_exception_dispatcher;
-        }
-        else
-        {
-            ssa_gpr->rip = (uint64_t)oe_exception_dispatcher;
-        }
+        // Advance RIP to the next instruction for continuation
+        ssa_gpr->rip += 2;
     }
     else
     {
