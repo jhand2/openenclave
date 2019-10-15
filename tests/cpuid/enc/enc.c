@@ -23,11 +23,9 @@ static void _execute_cpuid_instruction(
 
 static uint64_t _exception_handler(oe_exception_record_t* exception)
 {
-    oe_context_t* context = exception->context;
-
     if (exception->code == OE_EXCEPTION_ILLEGAL_INSTRUCTION)
     {
-        if (*((uint16_t*)context->rip) == OE_CPUID_OPCODE)
+        if (*((uint16_t*)exception->context->rip) == OE_CPUID_OPCODE)
         {
             /* Perform CPUID emulation later in the continuation hook. */
             return OE_EXCEPTION_CONTINUE_EXECUTION;
