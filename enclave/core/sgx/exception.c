@@ -227,6 +227,8 @@ int _emulate_illegal_instruction(sgx_ssa_gpr_t* ssa_gpr)
     return -1;
 }
 
+void (*oe_continue_execution_hook)(oe_context_t* oe_context);
+
 /*
 **==============================================================================
 **
@@ -280,6 +282,10 @@ void oe_real_exception_dispatcher(oe_context_t* oe_context)
         td->host_rbp = td->host_previous_rbp;
         td->host_rsp = td->host_previous_rsp;
 
+        /* Call the user's continue-execution handler. */
+        if (oe_continue_execution_hook)
+            (oe_continue_execution_hook)(oe_exception_record.context);
+
         oe_continue_execution(oe_exception_record.context);
 
         // Code should never run to here.
@@ -292,6 +298,7 @@ void oe_real_exception_dispatcher(oe_context_t* oe_context)
     td->host_rbp = td->host_previous_rbp;
     td->host_rsp = td->host_previous_rsp;
     oe_exception_record.context->rip = (uint64_t)oe_abort;
+
     oe_continue_execution(oe_exception_record.context);
 
     return;
@@ -476,22 +483,4 @@ void oe_cleanup_xstates(void)
     __builtin_ia32_xrstor64(xsave_area, restore_mask);
 
     return;
-}
-
-long (*oe_continue_execution_hook)(long ret);
-
-long oe_call_continue_execution_hook(long ret)
-{
-    /* ATTN: force compiler not to remove this with optimization. */
-    /* Force 64-byte stack alignment. */
-    __attribute__((aligned(64))) uint64_t dummy;
-
-    OE_UNUSED(dummy);
-
-    if (oe_continue_execution_hook)
-        return oe_continue_execution_hook(ret);
-
-    oe_host_printf("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n");
-
-    return ret;
 }

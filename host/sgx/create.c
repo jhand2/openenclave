@@ -1,6 +1,7 @@
 // Copyright (c) Open Enclave SDK contributors.
 // Licensed under the MIT License.
 
+#include "../host/sgx/cpuid.h"
 #include "../strings.h"
 
 #if defined(__linux__)
