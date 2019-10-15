@@ -283,7 +283,7 @@ void oe_real_exception_dispatcher(oe_context_t* oe_context)
 
         /* Call the user's continue-execution handler. */
         if (oe_continue_execution_hook)
-            (oe_continue_execution_hook)(oe_exception_record.context);
+            (*oe_continue_execution_hook)(oe_exception_record.context);
 
         oe_continue_execution(oe_exception_record.context);
 
