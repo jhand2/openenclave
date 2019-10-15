@@ -27,15 +27,10 @@ static uint64_t _exception_handler(oe_exception_record_t* exception)
 
     if (exception->code == OE_EXCEPTION_ILLEGAL_INSTRUCTION)
     {
-        uint64_t opcode = *((uint16_t*)context->rip);
-
-        if (opcode == OE_CPUID_OPCODE)
+        if (*((uint16_t*)context->rip) == OE_CPUID_OPCODE)
         {
+            /* Perform CPUID emulation later in the continuation hook. */
             return OE_EXCEPTION_CONTINUE_EXECUTION;
-        }
-        else
-        {
-            oe_abort();
         }
     }
 
@@ -46,14 +41,6 @@ extern void (*oe_continue_execution_hook)(oe_context_t* context);
 
 static void _continue_execution_hook(oe_context_t* context)
 {
-    extern void oe_execute_cpuid_instruction_ocall(
-        uint32_t leaf,
-        uint32_t subleaf,
-        uint32_t * eax,
-        uint32_t * ebx,
-        uint32_t * ecx,
-        uint32_t * edx);
-
     if (*((uint16_t*)context->rip) == OE_CPUID_OPCODE)
     {
         uint32_t rax;
@@ -63,6 +50,7 @@ static void _continue_execution_hook(oe_context_t* context)
 
         oe_host_printf("=== _continue_execution_hook()\n");
 
+        /* Call into host to execute the CPUID instruction. */
         cpuid_ocall(
             (uint32_t)context->rax, /* leaf */
             (uint32_t)context->rcx, /* subleaf */
@@ -85,20 +73,23 @@ void test_cpuid(void)
 {
     oe_result_t result;
 
+    /* Install an exception handler. */
     result = oe_add_vectored_exception_handler(false, _exception_handler);
     OE_TEST(result == OE_OK);
 
+    /* Install the exception continuation hook. */
     oe_continue_execution_hook = _continue_execution_hook;
 
     /* Execute the CPUID instruction to get leaf count. */
     {
-        uint32_t leaf = 4;
-        uint32_t subleaf = 1;
+        const uint32_t leaf = 4;
+        const uint32_t subleaf = 1;
         uint32_t eax = 0;
         uint32_t ebx = 0;
         uint32_t ecx = 0;
         uint32_t edx = 0;
 
+        /* Perform the CPUID instruction. */
         _execute_cpuid_instruction(leaf, subleaf, &eax, &ebx, &ecx, &edx);
 
         oe_host_printf("=== _execute_cpuid_instruction()\n");
@@ -107,8 +98,6 @@ void test_cpuid(void)
         oe_host_printf("ecx=%x\n", ecx);
         oe_host_printf("edx=%x\n", edx);
     }
-
-    oe_host_printf("test_cpuid()\n");
 }
 
 OE_SET_ENCLAVE_SGX(
