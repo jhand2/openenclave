@@ -48,14 +48,24 @@ static void _continue_execution_hook(oe_context_t* context)
 
         oe_host_printf("=== _continue_execution_hook()\n");
 
-        /* Call into host to execute the CPUID instruction. */
-        cpuid_ocall(
-            (uint32_t)context->rax, /* leaf */
-            (uint32_t)context->rcx, /* subleaf */
-            &rax,
-            &rbx,
-            &rcx,
-            &rdx);
+        if (context->rax == 0xff)
+        {
+            rax = 0xaa;
+            rbx = 0xbb;
+            rcx = 0xcc;
+            rdx = 0xdd;
+        }
+        else
+        {
+            /* Call into host to execute the CPUID instruction. */
+            cpuid_ocall(
+                (uint32_t)context->rax, /* leaf */
+                (uint32_t)context->rcx, /* subleaf */
+                &rax,
+                &rbx,
+                &rcx,
+                &rdx);
+        }
 
         context->rax = rax;
         context->rbx = rbx;
@@ -95,6 +105,24 @@ void test_cpuid(void)
         oe_host_printf("ebx=%x\n", ebx);
         oe_host_printf("ecx=%x\n", ecx);
         oe_host_printf("edx=%x\n", edx);
+    }
+
+    /* Execute the CPUID instruction with 0xff leaf. */
+    {
+        const uint32_t leaf = 0xff;
+        const uint32_t subleaf = 0;
+        uint32_t eax = 0;
+        uint32_t ebx = 0;
+        uint32_t ecx = 0;
+        uint32_t edx = 0;
+
+        /* Perform the CPUID instruction. */
+        _execute_cpuid_instruction(leaf, subleaf, &eax, &ebx, &ecx, &edx);
+
+        OE_TEST(eax == 0xaa);
+        OE_TEST(ebx == 0xbb);
+        OE_TEST(ecx == 0xcc);
+        OE_TEST(edx == 0xdd);
     }
 }
 
