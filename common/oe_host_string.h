@@ -41,7 +41,17 @@ int oe_strncmp(const char* s1, const char* s2, size_t n)
 OE_INLINE
 char* oe_strerror(int errnum)
 {
+#ifdef __clang__
+/* strerror is marked as deprecated when using clang on Windows. Allow
+ * usage anyway.
+ */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
     return strerror(errnum);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 }
 
 OE_INLINE

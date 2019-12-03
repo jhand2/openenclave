@@ -179,7 +179,7 @@ oe_result_t oe_bcrypt_der_to_pem(
     /* Need to allocate and write the PEM header/footer manually because
      * BCrypt only supports the cert/CRL/CSR headers.
      * The size also accounts for LF characters at the end of each line. */
-    pem_info = &_PEM_HEADERS[(DWORD)pem_type];
+    pem_info = (pem_header_info_t*)&_PEM_HEADERS[(DWORD)pem_type];
     assert(pem_info->type == pem_type);
     assert(pem_info->begin_label_length < OE_PEM_MAX_LEN);
     assert(pem_info->end_label_length < OE_PEM_MAX_LEN);
@@ -188,8 +188,8 @@ oe_result_t oe_bcrypt_der_to_pem(
         /* Max pem_headers_size is (2 * OE_PEM_MAX_LEN + 2) < MAXDWORD */
         DWORD pem_headers_size = (DWORD)(
             pem_info->begin_label_length + pem_info->end_label_length + 2);
-        OE_CHECK(
-            oe_safe_add_u32(pem_local_size, pem_headers_size, &pem_local_size));
+        OE_CHECK(oe_safe_add_u32(
+            pem_local_size, pem_headers_size, (uint32_t*)&pem_local_size));
 
         pem_local = (uint8_t*)malloc(pem_local_size);
         if (pem_local == NULL)

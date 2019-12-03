@@ -43,8 +43,8 @@ static const CERT_STRONG_SIGN_PARA _OE_DEFAULT_SIGN_PARAMS = {
 
 static const CERT_CHAIN_PARA _OE_DEFAULT_CERT_CHAIN_PARAMS = {
     .cbSize = sizeof(CERT_CHAIN_PARA),
-    .RequestedUsage = {{0}},
-    .RequestedIssuancePolicy = {{0}},
+    .RequestedUsage = {0},
+    .RequestedIssuancePolicy = {0},
     .dwUrlRetrievalTimeout = 0,
     .fCheckRevocationFreshnessTime = FALSE,
     .dwRevocationFreshnessTime = 0,
@@ -204,7 +204,10 @@ static oe_result_t _bcrypt_load_cert_store_pem(
             OE_RAISE(find_result);
 
         OE_CHECK(oe_bcrypt_pem_to_der(
-            pem_cert, pem_cert_size, &der_blob.pbData, &der_blob.cbData));
+            (const uint8_t*)pem_cert,
+            pem_cert_size,
+            &der_blob.pbData,
+            &der_blob.cbData));
         free(pem_cert);
         pem_cert = NULL;
 
@@ -784,7 +787,8 @@ oe_result_t oe_cert_chain_read_pem(
     OE_CHECK(_bcrypt_load_cert_store_pem(pem_data, pem_data_size, &cert_store));
 
     /* Count the number of unique certs in the resulting cert store */
-    while (cert_context = CertEnumCertificatesInStore(cert_store, cert_context))
+    while (
+        (cert_context = CertEnumCertificatesInStore(cert_store, cert_context)))
         cert_count++;
 
     if (cert_count == 0)
@@ -796,7 +800,8 @@ oe_result_t oe_cert_chain_read_pem(
      * cert until a cert chain is found that uses all certs in the store and
      * terminates in a self-signed (root) certificate.
      */
-    while (cert_context = CertEnumCertificatesInStore(cert_store, cert_context))
+    while (
+        (cert_context = CertEnumCertificatesInStore(cert_store, cert_context)))
     {
         oe_result_t find_result = _bcrypt_get_cert_chain(
             cert_context, cert_store, cert_count, &cert_chain);
@@ -922,7 +927,7 @@ oe_result_t oe_cert_verify(
     }
 
     /* Add CRLs to cert store */
-    for (int j = 0; j < num_crls; j++)
+    for (size_t j = 0; j < num_crls; j++)
     {
         PCCRL_CONTEXT crl_context;
         OE_CHECK(oe_crl_get_context(crls[j], &crl_context));
@@ -1044,7 +1049,7 @@ oe_result_t oe_get_crl_distribution_points(
         /* Copy the URLs array and pack the URL strings into buffer */
         if (buffer)
         {
-            uint8_t* offset = buffer + found_urls_size;
+            char* offset = buffer + found_urls_size;
             size_t remaining_bytes = found_urls_total_length;
             char** urls_array = (char**)buffer;
             for (DWORD k = 0; k < found_urls_count; k++)

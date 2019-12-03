@@ -73,6 +73,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_CXX_COMPILER_ID MATCHES Clang)
   # to fix warnings as they arise, so they don't accumulate "to be fixed later".
   add_compile_options(-Wall -Werror -Wpointer-arith -Wconversion -Wextra -Wno-missing-field-initializers)
 
+  if (WIN32)
+    # On Windows OE_UNUSED_ATTRIBUTE doesn't work which triggers noisy errors. Turn
+    # off this warning for now.
+    add_compile_options(-Wno-unused-local-typedef)
+  endif ()
+
   add_compile_options(-fno-strict-aliasing)
 
   # Enables XSAVE intrinsics
