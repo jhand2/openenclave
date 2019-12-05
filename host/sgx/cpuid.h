@@ -29,7 +29,7 @@ static inline void oe_get_cpuid(
 #elif defined(_MSC_VER)
     int registers[4] = {0};
 
-    __cpuidex(registers, __leaf, __subleaf);
+    __cpuidex(registers, (int)__leaf, (int)__subleaf);
 
     *__eax = (unsigned int)registers[0];
     *__ebx = (unsigned int)registers[1];

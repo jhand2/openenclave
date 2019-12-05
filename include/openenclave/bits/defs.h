@@ -159,7 +159,10 @@
     _Pragma("clang diagnostic push") \
         _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")
 #else
-#define OE_IGNORE_DEPRECARTED_END()
+#define OE_IGNORE_DEPRECARTED_BEGIN() \
+    do                                \
+    {                                 \
+    } while (0) // noop
 #endif
 
 /* OE_IGNORE_DEPRECATED_END */
@@ -168,7 +171,10 @@
 #elif defined(__clang__)
 #define OE_IGNORE_DEPRECATED_END() _Pragma("clang diagnostic pop")
 #else
-#define OE_IGNORE_DEPRECARTED_END()
+#define OE_IGNORE_DEPRECARTED_END() \
+    do                              \
+    {                               \
+    } while (0) // noop
 #endif
 
 #endif /* _OE_BITS_DEFS_H */

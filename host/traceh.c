@@ -3,7 +3,6 @@
 
 #include <openenclave/bits/safecrt.h>
 #include <openenclave/corelibc/limits.h>
-#include <openenclave/corelibc/time.h>
 #include <openenclave/internal/calls.h>
 #include <openenclave/internal/raise.h>
 #include <openenclave/internal/trace.h>
@@ -26,10 +25,10 @@ static char* _log_level_strings[OE_LOG_LEVEL_MAX] =
 static oe_mutex _log_lock = OE_H_MUTEX_INITIALIZER;
 static char _log_file_name[OE_PATH_MAX];
 static char _custom_log_format[OE_PATH_MAX];
-static bool _use_log_file = FALSE;
-static bool _use_custom_log_format = FALSE;
-static bool _log_all_streams = FALSE;
-static bool _log_escape = FALSE;
+static bool _use_log_file = false;
+static bool _use_custom_log_format = false;
+static bool _log_all_streams = false;
+static bool _log_escape = false;
 static const size_t MAX_ESCAPED_CHAR_LEN = 5; // e.g. u2605
 static const size_t MAX_ESCAPED_MSG_MULTIPLIER =
     7; // MAX_ESCAPED_CHAR_LEN + sizeof("\\\\")
@@ -79,6 +78,7 @@ done:
 
 void initialize_log_config()
 {
+    oe_result_t ret;
     char* env_log_file = NULL;
     char* env_log_format = NULL;
     char* env_log_all_streams = NULL;
@@ -106,17 +106,16 @@ void initialize_log_config()
                 goto done;
             }
         }
-        _initialized = TRUE;
+        _initialized = true;
     }
 
 done:
-    oe_result_t ret;
 
     if (env_log_file)
     {
         ret = oe_strncpy_s(
             _log_file_name, OE_PATH_MAX, env_log_file, strlen(env_log_file));
-        _use_log_file = TRUE;
+        _use_log_file = true;
 
         free(env_log_file);
     }
@@ -128,19 +127,19 @@ done:
             OE_PATH_MAX,
             env_log_format,
             strlen(env_log_format));
-        _use_custom_log_format = TRUE;
+        _use_custom_log_format = true;
         free(env_log_format);
     }
 
     if (env_log_all_streams)
     {
-        _log_all_streams = TRUE;
+        _log_all_streams = true;
         free(env_log_all_streams);
     }
 
     if (env_log_escape)
     {
-        _log_escape = TRUE;
+        _log_escape = true;
         free(env_log_escape);
     }
 
@@ -236,7 +235,7 @@ static void _write_message_to_stream(
         usecs,
         (is_enclave ? "E" : "H"),
         _log_level_strings[level],
-        oe_thread_self(),
+        (long long unsigned int)oe_thread_self(),
         message);
 }
 
@@ -310,14 +309,14 @@ done:
 void oe_log_message(bool is_enclave, oe_log_level_t level, const char* message)
 {
     // get timestamp for log
-    struct oe_tm t;
+    struct tm t;
 #if defined(__linux__)
     struct timeval time_now;
     gettimeofday(&time_now, NULL);
-    oe_gmtime_r(&time_now.tv_sec, &t);
+    gmtime_r(&time_now.tv_sec, &t);
 #else
     time_t lt = time(NULL);
-    oe_gmtime_r(&lt, &t);
+    gmtime_s(&t, &lt);
 #endif
 
     char time[20];

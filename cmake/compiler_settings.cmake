@@ -74,8 +74,24 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_CXX_COMPILER_ID MATCHES Clang)
   # Enables all the warnings about constructions that some users consider questionable,
   # and that are easy to avoid. Treat at warnings-as-errors, which forces developers
   # to fix warnings as they arise, so they don't accumulate "to be fixed later".
-  add_compile_options(-Wall -Werror -Wpointer-arith -Wconversion -Wextra -Wno-missing-field-initializers)
+  add_compile_options(-Wall -Wpointer-arith -Wconversion -Wextra -Wno-missing-field-initializers)
   add_compile_options(-fno-strict-aliasing)
+
+
+  if (WIN32)
+    # TODO: This is a bit of a hack
+    add_compile_options(-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH)
+
+    # TODO: Once all instances are fixed, remove this
+    add_compile_options(-Wno-deprecated-declarations)
+
+    # TODO: Fix this
+    add_compile_options(-Wno-sign-conversion -Wno-incompatible-pointer-types -Wno-format -Wno-shorten-64-to-32 -Wno-unused-parameter)
+  else()
+    add_compile_options(-Werror)
+  endif()
+
+  set(CMAKE_ASM_COMPILER_ID Clang)
 
   # Enables XSAVE intrinsics
   if (OE_SGX)
@@ -94,6 +110,11 @@ elseif (MSVC)
 endif ()
 
 # Use ML64 as assembler on Windows
-if (WIN32 AND (NOT CMAKE_CXX_COMPILER_ID MATCHES Clang))
+if (WIN32)
   set(CMAKE_ASM_MASM_COMPILER "ml64")
+
+  # Make sure clang flags don't get used for masm
+  if (CMAKE_ASM_MASM_COMPILER_ID MATCHES Clang)
+    set(CMAKE_ASM_MASM_COMPILE_OBJECT "<CMAKE_ASM_MASM_COMPILER> <INCLUDES> /c /Fo <OBJECT> <SOURCE>")
+  endif()
 endif ()

@@ -265,7 +265,7 @@ oe_result_t oe_load_pe_enclave_image(
     PIMAGE_SECTION_HEADER section_hdr;
     const IMAGE_DATA_DIRECTORY* idd;
     uint32_t i;
-    unsigned long old_protection;
+    DWORD old_protection;
 
     memset(image, 0, sizeof(oe_enclave_image_t));
     image->type = OE_IMAGE_TYPE_PE;

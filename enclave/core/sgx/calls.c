@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "../calls.h"
+#include <openenclave/bits/defs.h>
 #include <openenclave/bits/safecrt.h>
 #include <openenclave/bits/safemath.h>
 #include <openenclave/corelibc/stdlib.h>
@@ -143,9 +144,9 @@ static oe_result_t _handle_init_enclave(uint64_t arg_in)
     bool o = _once;
 
     /* DCLP Acquire barrier. */
-    OE_IGNORE_DEPRECATED_BEGIN()
+    OE_IGNORE_DEPRECATED_BEGIN();
     OE_ATOMIC_MEMORY_BARRIER_ACQUIRE();
-    OE_IGNORE_DEPRECATED_END()
+    OE_IGNORE_DEPRECATED_END();
 
     if (o == false)
     {
