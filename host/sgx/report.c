@@ -304,7 +304,7 @@ oe_result_t oe_verify_report(
         if (enclave == NULL)
             OE_RAISE(OE_INVALID_PARAMETER);
 
-        OE_CHECK(oe_verify_report_ecall(enclave, &result, report, report_size));
+        OE_CHECK(oe_verify_report_ecall(enclave, &retval, report, report_size));
     }
     else
     {

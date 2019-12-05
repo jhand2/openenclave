@@ -16,8 +16,8 @@ if (NOT CMAKE_C_COMPILER_ID STREQUAL CMAKE_CXX_COMPILER_ID)
     "${CMAKE_C_COMPILER_ID} != ${CMAKE_CXX_COMPILER_ID}")
 endif ()
 
-# Use C11
-set(CMAKE_C_STANDARD 11)
+# Set C standard to C99
+set(CMAKE_C_STANDARD 99)
 
 # Set the default standard to C++14 for all targets.
 set(CMAKE_CXX_STANDARD 14)
@@ -75,15 +75,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_CXX_COMPILER_ID MATCHES Clang)
   # and that are easy to avoid. Treat at warnings-as-errors, which forces developers
   # to fix warnings as they arise, so they don't accumulate "to be fixed later".
   add_compile_options(-Wall -Werror -Wpointer-arith -Wconversion -Wextra -Wno-missing-field-initializers)
-
-  if (WIN32)
-    # On Windows OE_UNUSED_ATTRIBUTE doesn't work which triggers noisy errors about unused
-    # typedefs when using the OE_UNUSED macro.
-    add_compile_options(-Wno-unused-local-typedef)
-
-    add_compile_options(-std=c11)
-  endif ()
-
   add_compile_options(-fno-strict-aliasing)
 
   # Enables XSAVE intrinsics
@@ -103,6 +94,6 @@ elseif (MSVC)
 endif ()
 
 # Use ML64 as assembler on Windows
-if (WIN32)
+if (WIN32 AND (NOT CMAKE_CXX_COMPILER_ID MATCHES Clang))
   set(CMAKE_ASM_MASM_COMPILER "ml64")
 endif ()

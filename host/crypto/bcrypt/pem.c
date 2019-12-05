@@ -288,14 +288,12 @@ oe_result_t oe_get_next_pem_cert(
     if (!pem_cert || !pem_cert_size)
         OE_RAISE(OE_INVALID_PARAMETER);
 
-    cert_begin = strstr(
-        (const char*)*pem_read_pos, OE_PEM_BEGIN_CERTIFICATE);
+    cert_begin = strstr((const char*)*pem_read_pos, OE_PEM_BEGIN_CERTIFICATE);
 
     if (!cert_begin || *cert_begin == '\0')
         return (OE_NOT_FOUND);
 
-    cert_end = strstr(
-        (const char*)*pem_read_pos, OE_PEM_END_CERTIFICATE);
+    cert_end = strstr((const char*)*pem_read_pos, OE_PEM_END_CERTIFICATE);
 
     if (!cert_end || *cert_begin == '\0' || cert_end <= cert_begin)
         return (OE_NOT_FOUND);

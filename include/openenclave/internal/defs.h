@@ -51,9 +51,9 @@
 #define OE_PAGE_SIZE 0x1000
 
 /* OE_UNUSED_ATTRIBUTE */
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 #define OE_UNUSED_ATTRIBUTE __attribute__((unused))
-#elif _MSC_VER
+#elif defined(_MSC_VER)
 #define OE_UNUSED_ATTRIBUTE
 #else
 #error OE_UNUSED_ATTRIBUTE not implemented

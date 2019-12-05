@@ -319,7 +319,9 @@ oe_result_t oe_handle_call_host_function(uint64_t arg, oe_enclave_t* enclave)
         &args_ptr->output_bytes_written);
 
     // The ocall succeeded.
+    OE_IGNORE_DEPRECATED_BEGIN()
     OE_ATOMIC_MEMORY_BARRIER_RELEASE();
+    OE_IGNORE_DEPRECATED_END()
     args_ptr->result = OE_OK;
     result = OE_OK;
 done:
@@ -345,8 +347,7 @@ static const char* oe_ocall_str(oe_func_t ocall)
 
     OE_STATIC_ASSERT(OE_OCALL_BASE + OE_COUNTOF(func_names) == OE_OCALL_MAX);
 
-    if (ocall >= OE_OCALL_BASE &&
-        ocall < (OE_OCALL_BASE + OE_COUNTOF(func_names)))
+    if (ocall >= OE_OCALL_BASE && ocall < OE_OCALL_MAX)
         return func_names[ocall - OE_OCALL_BASE];
     else
         return "UNKNOWN";
@@ -367,8 +368,7 @@ static const char* oe_ecall_str(oe_func_t ecall)
 
     OE_STATIC_ASSERT(OE_ECALL_BASE + OE_COUNTOF(func_names) == OE_ECALL_MAX);
 
-    if (ecall >= OE_ECALL_BASE &&
-        ecall < (OE_ECALL_BASE + OE_COUNTOF(func_names)))
+    if (ecall >= OE_ECALL_BASE && ecall < OE_ECALL_MAX)
         return func_names[ecall - OE_ECALL_BASE];
     else
         return "UNKNOWN";

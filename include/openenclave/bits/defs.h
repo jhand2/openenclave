@@ -51,16 +51,16 @@
 #define OE_INLINE static __inline__
 #endif
 
-#ifdef _MSC_VER
-#define OE_NO_OPTIMIZE_BEGIN __pragma(optimize("", off))
-#define OE_NO_OPTIMIZE_END __pragma(optimize("", on))
-#elif __clang__
+#ifdef __clang__
 #define OE_NO_OPTIMIZE_BEGIN _Pragma("clang optimize off")
 #define OE_NO_OPTIMIZE_END _Pragma("clang optimize on")
 #elif __GNUC__
 #define OE_NO_OPTIMIZE_BEGIN \
     _Pragma("GCC push_options") _Pragma("GCC optimize(\"O0\")")
 #define OE_NO_OPTIMIZE_END _Pragma("GCC pop_options")
+#elif _MSC_VER
+#define OE_NO_OPTIMIZE_BEGIN __pragma(optimize("", off))
+#define OE_NO_OPTIMIZE_END __pragma(optimize("", on))
 #else
 #error "OE_NO_OPTIMIZE_BEGIN and OE_NO_OPTIMIZE_END not implemented"
 #endif
@@ -152,12 +152,12 @@
 /* OE_IGNORE_DEPRECATED_BEGIN */
 #if defined(__GNUC__)
 #define OE_IGNORE_DEPRECATED_BEGIN() \
-    _Pragma("GCC diagnostic push") \
-    _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+    _Pragma("GCC diagnostic push")   \
+        _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
 #elif defined(__clang__)
 #define OE_IGNORE_DEPRECATED_BEGIN() \
     _Pragma("clang diagnostic push") \
-    _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")
+        _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")
 #else
 #define OE_IGNORE_DEPRECARTED_END()
 #endif
@@ -170,6 +170,5 @@
 #else
 #define OE_IGNORE_DEPRECARTED_END()
 #endif
-
 
 #endif /* _OE_BITS_DEFS_H */

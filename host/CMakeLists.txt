@@ -184,6 +184,7 @@ if (OE_SGX)
       sgx/linux/switchless.c
       sgx/linux/xstate.c)
   else()
+
     list(APPEND PLATFORM_HOST_ONLY_SRC
       sgx/windows/sgxquoteproviderloader.c)
 
@@ -206,8 +207,6 @@ elseif(OE_TRUSTZONE)
   else()
     message(FATAL_ERROR "OP-TEE is not yet supported on platforms other than Linux.")
   endif()
-
-  set(PLATFORM_FLAGS "")
 endif()
 
 if (OE_SGX AND WIN32)
@@ -400,6 +399,10 @@ if (WIN32 AND (CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_CXX_COMPILER_ID MATCHE
   # Turn off sign conversion warnings on Windows when compiling with
   # clang or gcc since oehost uses mbedtls code
   target_compile_options(oehost PRIVATE -Wno-sign-conversion)
+
+  if (OE_SGX)
+    target_compile_options(oehost PRIVATE -mfsgsbase)
+  endif()
 endif()
 
 if (USE_DEBUG_MALLOC)

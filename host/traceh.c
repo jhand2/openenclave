@@ -1,9 +1,9 @@
 // Copyright (c) Open Enclave SDK contributors.
 // Licensed under the MIT License.
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/corelibc/limits.h>
 #include <openenclave/corelibc/time.h>
-#include <openenclave/bits/safecrt.h>
 #include <openenclave/internal/calls.h>
 #include <openenclave/internal/raise.h>
 #include <openenclave/internal/trace.h>
@@ -16,6 +16,7 @@
 #endif
 #include <time.h>
 #include "dupenv.h"
+#include "fopen.h"
 #include "hostthread.h"
 
 #define LOGGING_FORMAT_STRING "%s.%06ldZ [(%s)%s] tid(0x%llx) | %s"
@@ -113,8 +114,8 @@ done:
 
     if (env_log_file)
     {
-        ret = oe_strncpy_s(_log_file_name, OE_PATH_MAX, env_log_file,
-                strlen(env_log_file));
+        ret = oe_strncpy_s(
+            _log_file_name, OE_PATH_MAX, env_log_file, strlen(env_log_file));
         _use_log_file = TRUE;
 
         free(env_log_file);
@@ -122,8 +123,11 @@ done:
 
     if (env_log_format)
     {
-        ret = oe_strncpy_s(_custom_log_format, OE_PATH_MAX, env_log_format,
-                strlen(env_log_format));
+        ret = oe_strncpy_s(
+            _custom_log_format,
+            OE_PATH_MAX,
+            env_log_format,
+            strlen(env_log_format));
         _use_custom_log_format = TRUE;
         free(env_log_format);
     }
@@ -142,10 +146,7 @@ done:
 
     if (!_initialized || ret != OE_OK)
     {
-        fprintf(
-            stderr,
-            "%s\n",
-            "[ERROR] Could not initialize logging.");
+        fprintf(stderr, "%s\n", "[ERROR] Could not initialize logging.");
         exit(1);
     }
 }

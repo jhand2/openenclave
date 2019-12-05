@@ -7,15 +7,24 @@
 #include <openenclave/bits/defs.h>
 #include <openenclave/bits/types.h>
 
-#if defined(_MSC_VER) && !__clang__
+#if defined(_MSC_VER)
 #pragma intrinsic(_InterlockedIncrement64)
 #pragma intrinsic(_InterlockedDecrement64)
 #pragma intrinsic(_InterlockedCompareExchange64)
 #pragma intrinsic(_InterlockedCompareExchangePointer)
+
+#if defined(__clang__)
+long long _InterlockedIncrement64(volatile long long* lpAddend);
+long long _InterlockedDecrement64(volatile long long* lpAddend);
+long long _InterlockedCompareExchange64(volatile long long* Dest, long long val, long long old);
+void* _InterlockedCompareExchangePointer(void* volatile* Dest, void* newptr, void* old);
+#else
 __int64 _InterlockedIncrement64(__int64* lpAddend);
 __int64 _InterlockedDecrement64(__int64* lpAddend);
 __int64 _InterlockedCompareExchange64(__int64* Dest, __int64 val, __int64 old);
 void* _InterlockedCompareExchangePointer(void** Dest, void* newptr, void* old);
+#endif
+
 #endif
 
 /* Atomically increment **x** and return its new value */

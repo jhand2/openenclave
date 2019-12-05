@@ -309,7 +309,10 @@ oe_result_t oe_load_pe_enclave_image(
 
     /* change protection to r/w */
     if (!VirtualProtect(
-            image->image_base, image->image_size, PAGE_READWRITE, &old_protection))
+            image->image_base,
+            image->image_size,
+            PAGE_READWRITE,
+            &old_protection))
     {
         OE_RAISE(OE_FAILURE);
     }
