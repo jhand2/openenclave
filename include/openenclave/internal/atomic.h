@@ -16,8 +16,14 @@
 #if defined(__clang__)
 long long _InterlockedIncrement64(volatile long long* lpAddend);
 long long _InterlockedDecrement64(volatile long long* lpAddend);
-long long _InterlockedCompareExchange64(volatile long long* Dest, long long val, long long old);
-void* _InterlockedCompareExchangePointer(void* volatile* Dest, void* newptr, void* old);
+long long _InterlockedCompareExchange64(
+    volatile long long* Dest,
+    long long val,
+    long long old);
+void* _InterlockedCompareExchangePointer(
+    void* volatile* Dest,
+    void* newptr,
+    void* old);
 #else
 __int64 _InterlockedIncrement64(__int64* lpAddend);
 __int64 _InterlockedDecrement64(__int64* lpAddend);

@@ -82,11 +82,11 @@ static bool _is_valid_elf64(const elf64_t* elf)
     /* Ensure that multiplying header size and num entries won't overflow. */
     OE_STATIC_ASSERT(
         sizeof(uint64_t) >=
-            sizeof(header->e_phentsize) + sizeof(header->e_phnum));
+        sizeof(header->e_phentsize) + sizeof(header->e_phnum));
 
     OE_STATIC_ASSERT(
         sizeof(uint64_t) >=
-            sizeof(header->e_shentsize) + sizeof(header->e_shnum));
+        sizeof(header->e_shentsize) + sizeof(header->e_shnum));
 
     uint64_t size = (uint64_t)header->e_phentsize * header->e_phnum;
     uint64_t end;

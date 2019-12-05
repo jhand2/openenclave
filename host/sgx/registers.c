@@ -10,7 +10,6 @@
 #include <immintrin.h>
 #endif
 
-
 #include <assert.h>
 #include <stdio.h>
 
