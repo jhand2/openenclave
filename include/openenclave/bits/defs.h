@@ -149,4 +149,27 @@
 #define OE_DEPRECATED(FUNC, MSG) FUNC
 #endif
 
+/* OE_IGNORE_DEPRECATED_BEGIN */
+#if defined(__GNUC__)
+#define OE_IGNORE_DEPRECATED_BEGIN() \
+    _Pragma("GCC diagnostic push") \
+    _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#elif defined(__clang__)
+#define OE_IGNORE_DEPRECATED_BEGIN() \
+    _Pragma("clang diagnostic push") \
+    _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"")
+#else
+#define OE_IGNORE_DEPRECARTED_END()
+#endif
+
+/* OE_IGNORE_DEPRECATED_END */
+#if defined(__GNUC__)
+#define OE_IGNORE_DEPRECATED_END() _Pragma("GCC diagnostic pop")
+#elif defined(__clang__)
+#define OE_IGNORE_DEPRECATED_END() _Pragma("clang diagnostic pop")
+#else
+#define OE_IGNORE_DEPRECARTED_END()
+#endif
+
+
 #endif /* _OE_BITS_DEFS_H */

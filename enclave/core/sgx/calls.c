@@ -143,7 +143,10 @@ static oe_result_t _handle_init_enclave(uint64_t arg_in)
     bool o = _once;
 
     /* DCLP Acquire barrier. */
+    OE_IGNORE_DEPRECATED_BEGIN()
     OE_ATOMIC_MEMORY_BARRIER_ACQUIRE();
+    OE_IGNORE_DEPRECATED_END()
+
     if (o == false)
     {
         static oe_spinlock_t _lock = OE_SPINLOCK_INITIALIZER;
@@ -172,7 +175,9 @@ static oe_result_t _handle_init_enclave(uint64_t arg_in)
             oe_call_init_functions();
 
             /* DCLP Release barrier. */
+            OE_IGNORE_DEPRECATED_BEGIN()
             OE_ATOMIC_MEMORY_BARRIER_RELEASE();
+            OE_IGNORE_DEPRECATED_END()
             _once = true;
             __oe_initialized = 1;
         }

@@ -16,6 +16,9 @@ if (NOT CMAKE_C_COMPILER_ID STREQUAL CMAKE_CXX_COMPILER_ID)
     "${CMAKE_C_COMPILER_ID} != ${CMAKE_CXX_COMPILER_ID}")
 endif ()
 
+# Use C11
+set(CMAKE_C_STANDARD 11)
+
 # Set the default standard to C++14 for all targets.
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -74,9 +77,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_CXX_COMPILER_ID MATCHES Clang)
   add_compile_options(-Wall -Werror -Wpointer-arith -Wconversion -Wextra -Wno-missing-field-initializers)
 
   if (WIN32)
-    # On Windows OE_UNUSED_ATTRIBUTE doesn't work which triggers noisy errors. Turn
-    # off this warning for now.
+    # On Windows OE_UNUSED_ATTRIBUTE doesn't work which triggers noisy errors about unused
+    # typedefs when using the OE_UNUSED macro.
     add_compile_options(-Wno-unused-local-typedef)
+
+    add_compile_options(-std=c11)
   endif ()
 
   add_compile_options(-fno-strict-aliasing)

@@ -396,6 +396,12 @@ target_compile_definitions(oehost
   OE_REPO_BRANCH_NAME="${GIT_BRANCH}"
   OE_REPO_LAST_COMMIT="${GIT_COMMIT}")
 
+if (WIN32 AND (CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_CXX_COMPILER_ID MATCHES Clang))
+  # Turn off sign conversion warnings on Windows when compiling with
+  # clang or gcc since oehost uses mbedtls code
+  target_compile_options(oehost PRIVATE -Wno-sign-conversion)
+endif()
+
 if (USE_DEBUG_MALLOC)
   target_compile_definitions(oehost PRIVATE OE_USE_DEBUG_MALLOC)
 endif ()

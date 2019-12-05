@@ -145,7 +145,7 @@ oe_result_t oe_bcrypt_der_to_pem(
     size_t* pem_size)
 {
     oe_result_t result = OE_UNEXPECTED;
-    uint8_t* pem_local = NULL;
+    char* pem_local = NULL;
     DWORD pem_local_size = 0;
     BOOL success = FALSE;
     pem_header_info_t* pem_info = NULL;
@@ -158,7 +158,7 @@ oe_result_t oe_bcrypt_der_to_pem(
 
     /* Check parameters */
     if (!der_data || der_data_size == 0 || der_data_size > MAXDWORD ||
-        !pem_data || !pem_size || pem_type >= ARRAYSIZE(_PEM_HEADERS))
+        !pem_data || !pem_size || pem_type >= __OE_PEM_HEADER_MAX)
         OE_RAISE(OE_INVALID_PARAMETER);
 
     success = CryptBinaryToStringA(
@@ -191,14 +191,14 @@ oe_result_t oe_bcrypt_der_to_pem(
         OE_CHECK(oe_safe_add_u32(
             pem_local_size, pem_headers_size, (uint32_t*)&pem_local_size));
 
-        pem_local = (uint8_t*)malloc(pem_local_size);
+        pem_local = (char*)malloc(pem_local_size);
         if (pem_local == NULL)
             OE_RAISE(OE_OUT_OF_MEMORY);
     }
 
     {
         /* Write the begin public key header */
-        uint8_t* pos = pem_local;
+        char* pos = pem_local;
         DWORD size_left = pem_local_size;
 
         OE_CHECK(oe_memcpy_s(
@@ -288,13 +288,13 @@ oe_result_t oe_get_next_pem_cert(
     if (!pem_cert || !pem_cert_size)
         OE_RAISE(OE_INVALID_PARAMETER);
 
-    cert_begin = (unsigned char*)strstr(
+    cert_begin = strstr(
         (const char*)*pem_read_pos, OE_PEM_BEGIN_CERTIFICATE);
 
     if (!cert_begin || *cert_begin == '\0')
         return (OE_NOT_FOUND);
 
-    cert_end = (unsigned char*)strstr(
+    cert_end = strstr(
         (const char*)*pem_read_pos, OE_PEM_END_CERTIFICATE);
 
     if (!cert_end || *cert_begin == '\0' || cert_end <= cert_begin)

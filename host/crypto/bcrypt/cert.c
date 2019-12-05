@@ -364,7 +364,7 @@ static oe_result_t _bcrypt_check_revocation(
         /* For parity with OpenSSL implementation, we require that a CRL
          * is provided for each issuer in the chain. */
         DWORD error = GetLastError();
-        if (error == CRYPT_E_NOT_FOUND)
+        if (error == (DWORD)CRYPT_E_NOT_FOUND)
             OE_RAISE(OE_VERIFY_CRL_MISSING);
         else
             OE_RAISE_MSG(
@@ -965,7 +965,7 @@ done:
 
 oe_result_t oe_get_crl_distribution_points(
     const oe_cert_t* cert,
-    const char*** urls,
+    char*** urls,
     size_t* num_urls,
     uint8_t* buffer,
     size_t* buffer_size)
@@ -1049,7 +1049,7 @@ oe_result_t oe_get_crl_distribution_points(
         /* Copy the URLs array and pack the URL strings into buffer */
         if (buffer)
         {
-            char* offset = buffer + found_urls_size;
+            char* offset = (char*)buffer + found_urls_size;
             size_t remaining_bytes = found_urls_total_length;
             char** urls_array = (char**)buffer;
             for (DWORD k = 0; k < found_urls_count; k++)
@@ -1089,7 +1089,6 @@ oe_result_t oe_cert_get_rsa_public_key(
     oe_rsa_public_key_t* public_key)
 {
     oe_result_t result = OE_UNEXPECTED;
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
     BCRYPT_KEY_HANDLE key_handle = NULL;
     PWSTR key_alg_name = NULL;
     ULONG key_alg_name_size;
@@ -1139,7 +1138,6 @@ oe_result_t oe_cert_get_ec_public_key(
     oe_ec_public_key_t* public_key)
 {
     oe_result_t result = OE_UNEXPECTED;
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
     BCRYPT_KEY_HANDLE key_handle = NULL;
     PWSTR key_alg_name = NULL;
     ULONG key_alg_name_size;

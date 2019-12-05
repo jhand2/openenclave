@@ -284,7 +284,7 @@ int elf64_load(const char* path, elf64_t* elf)
     if (fd == -1 || _fstat64(fd, &statbuf) != 0)
         goto done;
 
-    if (!(statbuf.st_mode & _S_IFREG) != 0)
+    if (statbuf.st_mode & _S_IFREG)
         goto done;
 #else
     fd = fileno(is);

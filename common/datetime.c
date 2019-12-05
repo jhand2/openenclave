@@ -1,6 +1,7 @@
 // Copyright (c) Open Enclave SDK contributors.
 // Licensed under the MIT License.
 
+#include <openenclave/corelibc/time.h>
 #include <openenclave/internal/datetime.h>
 #include <openenclave/internal/raise.h>
 #include <time.h>
@@ -228,20 +229,20 @@ oe_result_t oe_datetime_now(oe_datetime_t* value)
 {
     oe_result_t result = OE_UNEXPECTED;
     time_t now;
-    struct tm* timeinfo;
+    struct oe_tm timeinfo;
 
     if (value == NULL)
         OE_RAISE(OE_INVALID_PARAMETER);
 
     time(&now);
-    timeinfo = gmtime(&now);
+    oe_gmtime_r(&now, &timeinfo);
 
-    value->year = (uint32_t)timeinfo->tm_year + 1900;
-    value->month = (uint32_t)timeinfo->tm_mon + 1;
-    value->day = (uint32_t)timeinfo->tm_mday;
-    value->hours = (uint32_t)timeinfo->tm_hour;
-    value->minutes = (uint32_t)timeinfo->tm_min;
-    value->seconds = (uint32_t)timeinfo->tm_sec;
+    value->year = (uint32_t)timeinfo.tm_year + 1900;
+    value->month = (uint32_t)timeinfo.tm_mon + 1;
+    value->day = (uint32_t)timeinfo.tm_mday;
+    value->hours = (uint32_t)timeinfo.tm_hour;
+    value->minutes = (uint32_t)timeinfo.tm_min;
+    value->seconds = (uint32_t)timeinfo.tm_sec;
 
     result = OE_OK;
 done:

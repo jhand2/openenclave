@@ -7,7 +7,7 @@
 #include <openenclave/bits/defs.h>
 #include <openenclave/bits/types.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !__clang__
 #pragma intrinsic(_InterlockedIncrement64)
 #pragma intrinsic(_InterlockedDecrement64)
 #pragma intrinsic(_InterlockedCompareExchange64)
