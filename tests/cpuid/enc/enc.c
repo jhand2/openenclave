@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Open Enclave SDK contributors.
 // Licensed under the MIT License.
 
 #include <openenclave/enclave.h>
@@ -21,62 +21,52 @@ static void _execute_cpuid_instruction(
                  : "0"(leaf), "2"(subleaf));
 }
 
-static uint64_t _exception_handler(oe_exception_record_t* exception)
+static uint64_t _continue_execution_hook(oe_exception_record_t* record)
 {
-    if (exception->code == OE_EXCEPTION_ILLEGAL_INSTRUCTION)
+    // Only handle cpuid illegal instruction
+    if (record->code != OE_EXCEPTION_ILLEGAL_INSTRUCTION ||
+        *((uint16_t*)record->context->rip) != OE_CPUID_OPCODE)
     {
-        if (*((uint16_t*)exception->context->rip) == OE_CPUID_OPCODE)
-        {
-            /* Perform CPUID emulation later in the continuation hook. */
-            return OE_EXCEPTION_CONTINUE_EXECUTION;
-        }
+        return OE_EXCEPTION_CONTINUE_SEARCH;
     }
 
-    return OE_EXCEPTION_CONTINUE_SEARCH;
-}
-
-extern void (*oe_continue_execution_hook)(oe_exception_record_t* record);
-
-static void _continue_execution_hook(oe_exception_record_t* record)
-{
     oe_context_t* context = record->context;
 
-    if (*((uint16_t*)context->rip) == OE_CPUID_OPCODE)
+    uint32_t rax;
+    uint32_t rbx;
+    uint32_t rcx;
+    uint32_t rdx;
+
+    oe_host_printf("=== _continue_execution_hook()\n");
+
+    if (context->rax == 0xff)
     {
-        uint32_t rax;
-        uint32_t rbx;
-        uint32_t rcx;
-        uint32_t rdx;
-
-        oe_host_printf("=== _continue_execution_hook()\n");
-
-        if (context->rax == 0xff)
-        {
-            rax = 0xaa;
-            rbx = 0xbb;
-            rcx = 0xcc;
-            rdx = 0xdd;
-        }
-        else
-        {
-            /* Call into host to execute the CPUID instruction. */
-            cpuid_ocall(
-                (uint32_t)context->rax, /* leaf */
-                (uint32_t)context->rcx, /* subleaf */
-                &rax,
-                &rbx,
-                &rcx,
-                &rdx);
-        }
-
-        context->rax = rax;
-        context->rbx = rbx;
-        context->rcx = rcx;
-        context->rdx = rdx;
-
-        /* Skip over the CPUID instrunction. */
-        context->rip += 2;
+        rax = 0xaa;
+        rbx = 0xbb;
+        rcx = 0xcc;
+        rdx = 0xdd;
     }
+    else
+    {
+        /* Call into host to execute the CPUID instruction. */
+        cpuid_ocall(
+            (uint32_t)context->rax, /* leaf */
+            (uint32_t)context->rcx, /* subleaf */
+            &rax,
+            &rbx,
+            &rcx,
+            &rdx);
+    }
+
+    context->rax = rax;
+    context->rbx = rbx;
+    context->rcx = rcx;
+    context->rdx = rdx;
+
+    /* Skip over the CPUID instrunction. */
+    context->rip += 2;
+
+    return OE_EXCEPTION_CONTINUE_EXECUTION;
 }
 
 void test_cpuid(void)
@@ -84,11 +74,8 @@ void test_cpuid(void)
     oe_result_t result;
 
     /* Install an exception handler. */
-    result = oe_add_vectored_exception_handler(false, _exception_handler);
+    result = oe_add_vectored_exception_handler(false, _continue_execution_hook);
     OE_TEST(result == OE_OK);
-
-    /* Install the exception continuation hook. */
-    oe_continue_execution_hook = _continue_execution_hook;
 
     /* Execute the CPUID instruction. */
     {
@@ -102,6 +89,7 @@ void test_cpuid(void)
         /* Perform the CPUID instruction. */
         _execute_cpuid_instruction(leaf, subleaf, &eax, &ebx, &ecx, &edx);
 
+        // We should continue execution here
         oe_host_printf("=== _execute_cpuid_instruction()\n");
         oe_host_printf("eax=%x\n", eax);
         oe_host_printf("ebx=%x\n", ebx);
@@ -121,6 +109,7 @@ void test_cpuid(void)
         /* Perform the CPUID instruction. */
         _execute_cpuid_instruction(leaf, subleaf, &eax, &ebx, &ecx, &edx);
 
+        // We should continue execution here
         OE_TEST(eax == 0xaa);
         OE_TEST(ebx == 0xbb);
         OE_TEST(ecx == 0xcc);
