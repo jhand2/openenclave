@@ -1502,3 +1502,16 @@ int oe_syscall_uname_ocall(struct oe_utsname* buf)
 done:
     return ret;
 }
+
+/*
+**==============================================================================
+**
+** sleep and nanosleep:
+**
+**==============================================================================
+*/
+unsigned int oe_syscall_sleep_ocall(unsigned int seconds)
+{
+    Sleep(seconds * 1000);
+    return 0;
+}

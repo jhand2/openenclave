@@ -809,6 +809,20 @@ static long _syscall(
             goto done;
         }
 #endif
+        case OE_SYS_sleep:
+        {
+            ret = -1;
+            unsigned int seconds = (unsigned int)x1;
+            ret = (long)oe_sleep(seconds);
+            goto done;
+        }
+        case OE_SYS_nanosleep:
+        {
+            const struct timespec* req = (struct timespec*)x1;
+            struct timespec* rem = (struct timespec*)x2;
+            ret = (long)oe_nanosleep(req, rem);
+            goto done;
+        }
         default:
         {
             oe_errno = OE_ENOSYS;
