@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 enclave {
+
+    from "tee.edl" import *;
+
     trusted {
         public oe_result_t enc_get_init_ocall_result();
 

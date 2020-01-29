@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 enclave {
+
     trusted {
         public int regular_abort();
 

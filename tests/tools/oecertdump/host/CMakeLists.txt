@@ -5,7 +5,7 @@ find_package(OpenSSL REQUIRED)
 
 add_custom_command(OUTPUT oecertdump_u.h oecertdump_u.c oecertdump_args.h
   DEPENDS ../oecertdump.edl edger8r
-  COMMAND edger8r --untrusted ${CMAKE_CURRENT_SOURCE_DIR}/../oecertdump.edl)
+  COMMAND edger8r --untrusted ${CMAKE_CURRENT_SOURCE_DIR}/../oecertdump.edl  --search-path ${CMAKE_SOURCE_DIR}/common)
 
 add_executable(oecertdump host.cpp sgx_quote.cpp ${CMAKE_CURRENT_BINARY_DIR}/oecertdump_u.c)
 

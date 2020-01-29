@@ -13,12 +13,12 @@ set(EDL_DIR ${CMAKE_SOURCE_DIR}/common)
 set(TEE_EDL_FILE ${EDL_DIR}/tee.edl)
 
 add_custom_command(
-    OUTPUT tee_u.h tee_u.c tee_args.h
+    OUTPUT tee_u.h tee_args.h
     DEPENDS ${TEE_EDL_FILE} edger8r
-    COMMAND edger8r --search-path ${EDL_DIR} --untrusted ${TEE_EDL_FILE})
+    COMMAND edger8r --header-only --search-path ${EDL_DIR} --untrusted ${TEE_EDL_FILE})
 
 add_custom_target(tee_untrusted_edl
-    DEPENDS tee_u.h tee_u.c tee_args.h)
+    DEPENDS tee_u.h tee_args.h)
 
 ##==============================================================================
 ##
@@ -242,7 +242,6 @@ list(APPEND PLATFORM_SDK_ONLY_SRC
   syscall_u_wrapper.c
   signkey.c
   strings.c
-  tee_u_wrapper.c
   traceh_enclave.c)
 
 # Combine the following common code along with the platform specific code and

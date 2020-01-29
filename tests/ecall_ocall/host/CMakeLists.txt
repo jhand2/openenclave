@@ -1,7 +1,7 @@
 # Copyright (c) Open Enclave SDK contributors.
 # Licensed under the MIT License.
 
-oeedl_file(../ecall_ocall.edl host gen)
+oeedl_file(../ecall_ocall.edl host gen --edl-search-dir ${CMAKE_SOURCE_DIR}/common)
 
 add_executable(ecall_ocall_host host.cpp ${gen})
 

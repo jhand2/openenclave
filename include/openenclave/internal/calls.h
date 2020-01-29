@@ -412,13 +412,6 @@ oe_result_t oe_ocall(uint16_t func, uint64_t arg_in, uint64_t* arg_out);
 #define OE_SYSCALL_OCALL_FUNCTION_TABLE_ID 2
 #define OE_SYSCALL_ECALL_FUNCTION_TABLE_ID 2
 
-/* Register the OCALL table needed by the common TEE interface (host side). */
-oe_result_t oe_register_tee_ocall_function_table(void);
-
-/* Register the ECALL table needed by the common TEE interface (enclave side).
- */
-oe_result_t oe_register_tee_ecall_function_table(void);
-
 /* Register the OCALL table needed by the SGX-specific interface (host side). */
 oe_result_t oe_register_sgx_ocall_function_table(void);
 

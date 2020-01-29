@@ -13,12 +13,12 @@ set(EDL_DIR ${CMAKE_SOURCE_DIR}/common)
 set(TEE_EDL_FILE ${EDL_DIR}/tee.edl)
 
 add_custom_command(
-    OUTPUT tee_t.h tee_t.c tee_args.h
+    OUTPUT tee_t.h tee_args.h
     DEPENDS ${TEE_EDL_FILE} edger8r
-    COMMAND edger8r --search-path ${EDL_DIR} --trusted ${TEE_EDL_FILE})
+    COMMAND edger8r --header-only --search-path ${EDL_DIR} --trusted ${TEE_EDL_FILE})
 
 add_custom_target(tee_trusted_edl
-    DEPENDS tee_t.h tee_t.c tee_args.h)
+    DEPENDS tee_t.h tee_args.h)
 
 ##==============================================================================
 ##
@@ -149,7 +149,6 @@ add_library(oecore STATIC
     strtok_r.c
     strtoul.c
     switchlesscalls.c
-    tee_t_wrapper.c
     time.c
     tracee.c
     ${PLATFORM_SRC})

@@ -153,9 +153,6 @@ static oe_result_t _handle_init_enclave(uint64_t arg_in)
         {
             oe_enclave_t* enclave = (oe_enclave_t*)arg_in;
 
-            /* Install the common TEE ECALL function table. */
-            OE_CHECK(oe_register_tee_ecall_function_table());
-
             /* Install the SGX ECALL function table. */
             OE_CHECK(oe_register_sgx_ecall_function_table());
 

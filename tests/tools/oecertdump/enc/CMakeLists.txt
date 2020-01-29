@@ -3,7 +3,7 @@
 
 add_custom_command(OUTPUT oecertdump_t.h oecertdump_t.c oecertdump_args.h
   DEPENDS ../oecertdump.edl edger8r
-  COMMAND edger8r --trusted ${CMAKE_CURRENT_SOURCE_DIR}/../oecertdump.edl)
+  COMMAND edger8r --trusted ${CMAKE_CURRENT_SOURCE_DIR}/../oecertdump.edl  --search-path ${CMAKE_SOURCE_DIR}/common)
 
 add_enclave(TARGET oecertdump_enc SOURCES enc.cpp ${CMAKE_CURRENT_BINARY_DIR}/oecertdump_t.c)
 

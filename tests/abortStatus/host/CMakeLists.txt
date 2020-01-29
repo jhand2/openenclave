@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 
-oeedl_file(../abortStatus.edl host gen)
+oeedl_file(../abortStatus.edl host gen --edl-search-dir ${CMAKE_SOURCE_DIR}/common)
 
 add_executable(abortStatus_host host.cpp ${gen})
 

@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 
-oeedl_file(../abortStatus.edl enclave gen)
+oeedl_file(../abortStatus.edl enclave gen --edl-search-dir ${CMAKE_SOURCE_DIR}/common)
 
 add_enclave(TARGET abortStatus_enc UUID c55a7e2a-b857-4518-98df-4d294d0ab14d CXX SOURCES enc.cpp ${gen})
 
