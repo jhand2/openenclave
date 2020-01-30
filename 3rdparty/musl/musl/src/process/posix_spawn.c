@@ -101,6 +101,10 @@ static int child(void *args_vp)
 				break;
 			case FDOP_DUP2:
 				fd = op->srcfd;
+				if (fd == p) {
+					ret = -EBADF;
+					goto fail;
+				}
 				if (fd != op->fd) {
 					if ((ret=__sys_dup2(fd, op->fd))<0)
 						goto fail;
@@ -120,6 +124,14 @@ static int child(void *args_vp)
 						goto fail;
 					__syscall(SYS_close, fd);
 				}
+				break;
+			case FDOP_CHDIR:
+				ret = __syscall(SYS_chdir, op->path);
+				if (ret<0) goto fail;
+				break;
+			case FDOP_FCHDIR:
+				ret = __syscall(SYS_fchdir, op->fd);
+				if (ret<0) goto fail;
 				break;
 			}
 		}

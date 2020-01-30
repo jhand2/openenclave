@@ -197,6 +197,7 @@ add_library(oelibc STATIC
     ${MUSLSRC}/internal/floatscan.c
     ${MUSLSRC}/internal/intscan.c
     ${MUSLSRC}/internal/libc.c
+    ${MUSLSRC}/internal/procfdname.c
     ${MUSLSRC}/internal/shgetc.c
     ${MUSLSRC}/legacy/getpagesize.c
     ${MUSLSRC}/locale/bind_textdomain_codeset.c
@@ -272,6 +273,8 @@ add_library(oelibc STATIC
     ${MUSLSRC}/math/expm1.c
     ${MUSLSRC}/math/expm1f.c
     ${MUSLSRC}/math/expm1l.c
+    ${MUSLSRC}/math/exp2f_data.c
+    ${MUSLSRC}/math/exp_data.c
     ${MUSLSRC}/math/__expo2.c
     ${MUSLSRC}/math/__expo2f.c
     ${MUSLSRC}/math/fabs.c
@@ -337,13 +340,17 @@ add_library(oelibc STATIC
     ${MUSLSRC}/math/log1pf.c
     #${MUSLSRC}/math/log1pl.c
     ${MUSLSRC}/math/log2.c
+    ${MUSLSRC}/math/log2_data.c
     ${MUSLSRC}/math/log2f.c
+    ${MUSLSRC}/math/log2f_data.c
     #${MUSLSRC}/math/log2l.c
     ${MUSLSRC}/math/logb.c
     ${MUSLSRC}/math/logbf.c
     ${MUSLSRC}/math/logbl.c
     ${MUSLSRC}/math/log.c
+    ${MUSLSRC}/math/log_data.c
     ${MUSLSRC}/math/logf.c
+    ${MUSLSRC}/math/logf_data.c
     #${MUSLSRC}/math/logl.c
     ${MUSLSRC}/math/lrint.c
     ${MUSLSRC}/math/lrintf.c
@@ -351,6 +358,16 @@ add_library(oelibc STATIC
     ${MUSLSRC}/math/lround.c
     ${MUSLSRC}/math/lroundf.c
     ${MUSLSRC}/math/lroundl.c
+    ${MUSLSRC}/math/__math_divzero.c
+    ${MUSLSRC}/math/__math_divzerof.c
+    ${MUSLSRC}/math/__math_invalid.c
+    ${MUSLSRC}/math/__math_invalidf.c
+    ${MUSLSRC}/math/__math_oflow.c
+    ${MUSLSRC}/math/__math_oflowf.c
+    ${MUSLSRC}/math/__math_uflow.c
+    ${MUSLSRC}/math/__math_uflowf.c
+    ${MUSLSRC}/math/__math_xflow.c
+    ${MUSLSRC}/math/__math_xflowf.c
     ${MUSLSRC}/math/modf.c
     ${MUSLSRC}/math/modff.c
     ${MUSLSRC}/math/modfl.c
@@ -368,6 +385,7 @@ add_library(oelibc STATIC
     ${MUSLSRC}/math/nexttowardl.c
     ${MUSLSRC}/math/__polevll.c
     ${MUSLSRC}/math/pow.c
+    ${MUSLSRC}/math/pow_data.c
     ${MUSLSRC}/math/powf.c
     ${MUSLSRC}/math/powl.c
     ${MUSLSRC}/math/remainder.c
@@ -524,11 +542,12 @@ add_library(oelibc STATIC
     ${MUSLSRC}/select/select.c
     ${MUSLSRC}/select/poll.c
     ${MUSLSRC}/stat/mkdir.c
+    ${MUSLSRC}/stat/fstatat.c
+    ${MUSLSRC}/stat/stat.c
     ${MUSLSRC}/search/tdelete.c
     ${MUSLSRC}/search/tfind.c
     ${MUSLSRC}/search/tsearch.c
     ${MUSLSRC}/search/twalk.c
-    ${MUSLSRC}/stat/stat.c
     ${MUSLSRC}/stdio/asprintf.c
     ${MUSLSRC}/stdio/asprintf.c
     ${MUSLSRC}/stdio/clearerr.c
@@ -739,6 +758,7 @@ add_library(oelibc STATIC
     ${MUSLSRC}/thread/__lock.c
     ${MUSLSRC}/thread/__wait.c
     ${MUSLSRC}/time/clock_gettime.c
+    ${MUSLSRC}/time/clock_nanosleep.c
     ${MUSLSRC}/time/gettimeofday.c
     ${MUSLSRC}/time/gmtime.c
     ${MUSLSRC}/time/gmtime_r.c
@@ -846,7 +866,8 @@ target_link_libraries(oelibc
 
 target_include_directories(oelibc PRIVATE
   ${PROJECT_BINARY_DIR}/3rdparty/musl/musl/src/include
-  ${PROJECT_BINARY_DIR}/3rdparty/musl/musl/src/internal)
+  ${PROJECT_BINARY_DIR}/3rdparty/musl/musl/src/internal
+  ${PROJECT_BINARY_DIR}/3rdparty/musl/musl/arch/generic)
 
 if (OE_SGX)
 target_include_directories(oelibc PRIVATE

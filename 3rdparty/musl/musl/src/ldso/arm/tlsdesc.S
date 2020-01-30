@@ -8,8 +8,6 @@ __tlsdesc_static:
 	ldr r0,[r0]
 	bx lr
 
-.hidden __tls_get_new
-
 .global __tlsdesc_dynamic
 .hidden __tlsdesc_dynamic
 .type __tlsdesc_dynamic,%function
@@ -30,39 +28,24 @@ __tlsdesc_dynamic:
 #if __ARM_ARCH >= 5
 	blx r0          // r0 = tp
 #else
+#if __thumb__
+	add lr,pc,#1
+#else
 	mov lr,pc
+#endif
 	bx r0
 #endif
 #endif
 	ldr r3,[r0,#-4] // r3 = dtv
-	ldr ip,[r3]     // ip = dtv slot count
-	cmp r1,ip
-	bhi 3f
 	ldr ip,[r3,r1,LSL #2]
 	sub r0,ip,r0
 	add r0,r0,r2    // r0 = r3[r1]-r0+r2
-4:
 #if __ARM_ARCH >= 5
 	pop {r2,r3,ip,pc}
 #else
 	pop {r2,r3,ip,lr}
 	bx lr
 #endif
-
-3:
-#if __ARM_PCS_VFP || !__SOFTFP__
-	.fpu vfp
-	vpush {d0-d7}
-#endif
-	push {r0-r3}
-	add r0,sp,#4
-	bl __tls_get_new
-	pop {r1-r3,ip}
-#if __ARM_PCS_VFP || !__SOFTFP__
-	vpop {d0-d7}
-#endif
-	sub r0,r0,r1    // r0 = retval-tp
-	b 4b
 
 #if ((__ARM_ARCH_6K__ || __ARM_ARCH_6KZ__ || __ARM_ARCH_6ZK__) && !__thumb__) \
  || __ARM_ARCH_7A__ || __ARM_ARCH_7R__ || __ARM_ARCH >= 7
