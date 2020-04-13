@@ -220,7 +220,7 @@ include(add_enclave_test)
 # Recurse through subdirectories
 add_subdirectory(include)
 add_subdirectory(host)
-add_subdirectory(tests)
+#add_subdirectory(tests)
 add_subdirectory(tools)
 
 if (BUILD_ENCLAVES)
